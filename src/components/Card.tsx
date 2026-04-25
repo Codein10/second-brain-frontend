@@ -1,13 +1,34 @@
 import { useEffect, useRef } from 'react'
 import ShareIcon from '../assets/icons/ShareIcon'
+import YouTubeIcon from '../assets/icons/YouTubeIcon'
+import XIcon from '../assets/icons/XIcon'
+import DeleteIcon from '../assets/icons/DeleteIcon'
+import axios from 'axios'
 
 interface cardProps {
     title: string,
     link: string,
-    cardtype: "youtube" | "twitter"
+    cardtype: "youtube" | "twitter",
+    id: string
 }
 
-const Card = ({ title, link, cardtype }: cardProps) => {
+
+const Card = ({ title, link, cardtype, id }: cardProps) => {
+
+    const handledelete = async () => {
+        try {
+            await axios.delete('/api/v1/content', {
+                data: { contentId: id },
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            })
+            alert("Content deleted successfully")
+            // window.location.reload()
+        } catch (error) {
+            alert("Failed to delete content: " + error)
+        }
+    }
+
+
     const twitterRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -19,7 +40,7 @@ const Card = ({ title, link, cardtype }: cardProps) => {
                 script.async = true
                 script.charset = 'utf-8'
                 document.body.appendChild(script)
-                
+
                 script.onload = () => {
                     if (window.twttr?.widgets) {
                         window.twttr.widgets.load(twitterRef.current)
@@ -33,18 +54,22 @@ const Card = ({ title, link, cardtype }: cardProps) => {
     }, [cardtype, link])
 
     return <div>
-        <div className='p-4 m-3 bg-white rounded-md border-gray-200 max-w-72 border'>
+        <div className='p-4 m-3 bg-white rounded-md border-gray-200 border w-80'>
             <div className='flex justify-between'>
                 <div className='flex'>
                     <div className='text-gray-500 pr-2'>
-                        <ShareIcon />
+                        {cardtype === "youtube" ? <YouTubeIcon /> : <XIcon />}
                     </div>
                     {title}
                 </div>
-                <div className='flex'>
-                    <div className='text-gray-500 pr-2'>
-                        <ShareIcon />
-                    </div>
+                <div className='flex justify-center items-center gap-1'>
+                    <button 
+                        onClick={handledelete}
+                        className='text-gray-500 hover:text-red-500 cursor-pointer'
+                        aria-label="Delete content"
+                    >
+                        <DeleteIcon />
+                    </button>
                     <div className='text-gray-500'>
                         <ShareIcon />
                     </div>
@@ -67,12 +92,12 @@ const Card = ({ title, link, cardtype }: cardProps) => {
                         }
                     }
                     return (
-                        <iframe 
-                            className='w-full' 
+                        <iframe
+                            className='w-full'
                             src={embedUrl}
-                            title="YouTube video player" 
+                            title="YouTube video player"
                             frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             referrerPolicy="strict-origin-when-cross-origin"
                             allowFullScreen
                         />
