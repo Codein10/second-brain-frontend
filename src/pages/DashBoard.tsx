@@ -11,14 +11,13 @@ import axios from 'axios'
 import MenuIcon from '../assets/icons/MenuIcon'
 
 function DashBoard() {
-  const [modalopen, setmodalopen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const { content, fetchContent } = useContent()
   const [isSideBarOpen, setIsSideBarOpen] = useState(false)
 
-
   useEffect(() => {
     fetchContent()
-  }, [modalopen])
+  }, [modalOpen])
 
   async function handleShare() {
     try {
@@ -34,31 +33,77 @@ function DashBoard() {
     }
   }
 
-  return <div>
-    <div>
-      {isSideBarOpen && <SideBar isSideBarOpen={isSideBarOpen} setIsSideBarOpen={setIsSideBarOpen} />}
-      <div className={`${isSideBarOpen ? 'ml-72' : ''} md:${isSideBarOpen ? '' : ''}  min-h-screen bg-gray-100`} >
-        <CreateContent open={modalopen} onclose={() => {
-          setmodalopen(false)
-        }} />
-        <div className='flex justify-between sticky top-0 pt-4 z-10 gap-2 bg-purple-100'>
-          {!isSideBarOpen && <div className='ml-5' onClick={() => setIsSideBarOpen(true)}>
-            <MenuIcon />
-          </div>}
-          <div className='flex gap-2 ml-auto'>
-            <Button onClick={() => handleShare()} varient="primary" text="Share " startIcon={<ShareIcon />} />
-            <Button onClick={() => setmodalopen(true)} varient="secondary" text="Add Content" startIcon={<AddIcon />} />
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      {isSideBarOpen && (
+        <SideBar isSideBarOpen={isSideBarOpen} setIsSideBarOpen={setIsSideBarOpen} />
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between px-4 md:px-6 py-4">
+            {/* Menu Button - Mobile */}
+            {!isSideBarOpen && (
+              <button
+                onClick={() => setIsSideBarOpen(true)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 text-gray-700"
+                aria-label="Open sidebar"
+                title="Menu"
+              >
+                <MenuIcon />
+              </button>
+            )}
+
+            {/* Title - Desktop Only */}
+            <div className="flex-1 hidden sm:block">
+              <h1 className="text-2xl font-bold text-gray-800">My Brain</h1>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 md:gap-3 ml-auto">
+              <Button
+                onClick={() => handleShare()}
+                varient="primary"
+                text="Share"
+                startIcon={<ShareIcon />}
+              />
+              <Button
+                onClick={() => setModalOpen(true)}
+                varient="secondary"
+                text="Add Content"
+                startIcon={<AddIcon />}
+              />
+            </div>
           </div>
+        </header>
 
-        </div>
+        {/* Create Content Modal */}
+        <CreateContent
+          open={modalOpen}
+          onclose={() => {
+            setModalOpen(false)
+          }}
+        />
 
-        <div className='flex col-gap-4 row-gap-6 flex-wrap p-4'>
-          {content?.map((item: any) => (
-            <Card key={item.id} id={item.id} cardtype={item.type} link={item.link} title={item.title} />
-          ))}
-        </div>
+        {/* Content Grid */}
+        <main className="flex-1 p-4 md:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {content?.map((item: any) => (
+              <Card
+                key={item.id}
+                id={item.id}
+                cardtype={item.type}
+                link={item.link}
+                title={item.title}
+              />
+            ))}
+          </div>
+        </main>
       </div>
     </div>
-  </div>
+  )
 }
 export default DashBoard
