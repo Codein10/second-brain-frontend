@@ -9,22 +9,27 @@ interface cardProps {
     title: string,
     link: string,
     cardtype: "youtube" | "twitter",
-    id: string
+    _id: string
 }
 
 
-const Card = ({ title, link, cardtype, id }: cardProps) => {
+const Card = ({ title, link, cardtype, _id }: cardProps) => {
     const twitterRef = useRef<HTMLDivElement>(null)
 
     const handleDelete = async () => {
         try {
-            await axios.delete('/api/v1/content', {
-                data: { contentId: id },
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            await axios({
+                method: 'delete',
+                url: '/api/v1/content',
+                data: { contentId: _id },
+                headers: { 
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json'
+                }
             })
             alert("Content deleted successfully")
-        } catch (error) {
-            alert("Failed to delete content: " + error)
+        } catch (error: any) {
+            alert("Failed to delete content: " + (error.response?.data?.message || error.message))
         }
     }
 
@@ -40,8 +45,8 @@ const Card = ({ title, link, cardtype, id }: cardProps) => {
                 await navigator.clipboard.writeText(link)
                 alert("Link copied to clipboard!")
             }
-        } catch (error) {
-            console.error("Error sharing:", error)
+        } catch (error: any) {
+            alert("Error sharing content: " + (error.response?.data?.message || error.message))
         }
     }
 
