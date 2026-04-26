@@ -11,9 +11,15 @@ function fetchContent() {
     }).then((res) => {
         setContent(res.data.Content)
     })
-
 }
-    return {content,fetchContent}
+
+function removeContent(contentId: string) {
+    setContent((prevContent) => 
+        prevContent.filter((item: any) => item._id !== contentId)
+    )
+}
+
+    return {content, fetchContent, removeContent}
 }
 
 

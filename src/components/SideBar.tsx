@@ -4,13 +4,15 @@ import XIcon from "../assets/icons/XIcon"
 import YouTubeIcon from "../assets/icons/YouTubeIcon"
 import SideBarItems from "./SideBarItems"
 import brainly from "../assets/icons/Brainly.jpg"
+
 type SideBarProps = {
     isSideBarOpen: boolean
     setIsSideBarOpen: any
-
+    selectedFilter: string
+    onFilterChange: (filter: string) => void
 }
 
-const SideBar = ({ isSideBarOpen, setIsSideBarOpen }: SideBarProps) => {
+const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedFilter, onFilterChange }: SideBarProps) => {
     return (
         <div
             className={`fixed left-0 top-0 z-20 h-screen w-64 md:w-72 bg-gradient-to-b from-purple-50 to-white shadow-2xl transition-transform duration-300 ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -45,14 +47,28 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen }: SideBarProps) => {
                     Filter by Type
                 </p>
                 <div className="space-y-2">
-                    <SideBarItems text="Twitter" icon={<XIcon />} />
-                    <SideBarItems text="YouTube" icon={<YouTubeIcon />} />
+                    <SideBarItems 
+                        text="All" 
+                        icon={<span>📋</span>} 
+                        onClick={() => onFilterChange("all")}
+                        isActive={selectedFilter === "all"}
+                    />
+                    <SideBarItems 
+                        text="Twitter" 
+                        icon={<XIcon />}
+                        onClick={() => onFilterChange("twitter")}
+                        isActive={selectedFilter === "twitter"}
+                    />
+                    <SideBarItems 
+                        text="YouTube" 
+                        icon={<YouTubeIcon />}
+                        onClick={() => onFilterChange("youtube")}
+                        isActive={selectedFilter === "youtube"}
+                    />
                 </div>
             </div>
         </div>
     )
-
-
 }
 
 export default SideBar

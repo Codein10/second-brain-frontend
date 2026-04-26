@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ShareIcon from '../assets/icons/ShareIcon'
 import YouTubeIcon from '../assets/icons/YouTubeIcon'
 import XIcon from '../assets/icons/XIcon'
@@ -10,11 +10,20 @@ interface cardProps {
     link: string,
     cardtype: "youtube" | "twitter",
     _id: string
+    onDelete?: (id: string) => void
+}
+
+// Extend window to include twttr
+declare global {
+    interface Window {
+        twttr?: any
+    }
 }
 
 
-const Card = ({ title, link, cardtype, _id }: cardProps) => {
+const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
     const twitterRef = useRef<HTMLDivElement>(null)
+    const [twitterLoading, setTwitterLoading] = useState(true)
 
     const handleDelete = async () => {
         try {
@@ -28,6 +37,8 @@ const Card = ({ title, link, cardtype, _id }: cardProps) => {
                 }
             })
             alert("Content deleted successfully")
+            // Call the callback to remove from UI
+            onDelete?.(_id)
         } catch (error: any) {
             alert("Failed to delete content: " + (error.response?.data?.message || error.message))
         }
@@ -52,21 +63,30 @@ const Card = ({ title, link, cardtype, _id }: cardProps) => {
 
     useEffect(() => {
         if (cardtype === "twitter" && twitterRef.current) {
-            if (!window.twttr) {
-                const script = document.createElement('script')
-                script.src = 'https://platform.twitter.com/widgets.js'
-                script.async = true
-                script.charset = 'utf-8'
-                document.body.appendChild(script)
+            // Load Twitter widgets script
+            const loadTwitterScript = () => {
+                if (!window.twttr) {
+                    const script = document.createElement('script')
+                    script.src = 'https://platform.twitter.com/widgets.js'
+                    script.async = true
+                    script.charset = 'utf-8'
+                    document.body.appendChild(script)
 
-                script.onload = () => {
-                    if (window.twttr?.widgets) {
-                        window.twttr.widgets.load(twitterRef.current)
+                    script.onload = () => {
+                        if (window.twttr?.widgets) {
+                            window.twttr.widgets.load(twitterRef.current).then(() => {
+                                setTwitterLoading(false)
+                            })
+                        }
                     }
+                } else {
+                    window.twttr?.widgets?.load(twitterRef.current).then(() => {
+                        setTwitterLoading(false)
+                    })
                 }
-            } else {
-                window.twttr?.widgets?.load(twitterRef.current)
             }
+
+            loadTwitterScript()
         }
     }, [cardtype, link])
 
@@ -141,9 +161,17 @@ const Card = ({ title, link, cardtype, _id }: cardProps) => {
                         ref={twitterRef}
                         className="w-full h-48 md:h-56 overflow-y-auto"
                     >
-                        <blockquote className="twitter-tweet">
+                        {twitterLoading && (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 animate-pulse">
+                                <div className="text-center">
+                                    <div className="inline-block w-10 h-10 border-4 border-gray-300 border-t-purple-600 rounded-full animate-spin mb-2"></div>
+                                    <p className="text-sm text-gray-600">Loading tweet...</p>
+                                </div>
+                            </div>
+                        )}
+                        <blockquote className="twitter-tweet" style={{ display: twitterLoading ? 'none' : 'block' }}>
                             <a href={link.replace("x.com", "twitter.com")}>
-                                {link}
+                                Loading tweet...
                             </a>
                         </blockquote>
                     </div>

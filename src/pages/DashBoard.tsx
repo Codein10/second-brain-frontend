@@ -12,12 +12,26 @@ import MenuIcon from '../assets/icons/MenuIcon'
 
 function DashBoard() {
   const [modalOpen, setModalOpen] = useState(false)
-  const { content, fetchContent } = useContent()
+  const { content, fetchContent, removeContent } = useContent()
   const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+  const [selectedFilter, setSelectedFilter] = useState("all")
 
   useEffect(() => {
     fetchContent()
   }, [modalOpen])
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilter(filter)
+  }
+
+  const handleCardDelete = (contentId: string) => {
+    removeContent(contentId)
+  }
+
+  // Filter content based on selected filter
+  const filteredContent = selectedFilter === "all" 
+    ? content 
+    : content?.filter((item: any) => item.type === selectedFilter)
 
   async function handleShare() {
     try {
@@ -37,7 +51,12 @@ function DashBoard() {
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       {isSideBarOpen && (
-        <SideBar isSideBarOpen={isSideBarOpen} setIsSideBarOpen={setIsSideBarOpen} />
+        <SideBar 
+          isSideBarOpen={isSideBarOpen} 
+          setIsSideBarOpen={setIsSideBarOpen}
+          selectedFilter={selectedFilter}
+          onFilterChange={handleFilterChange}
+        />
       )}
 
       {/* Main Content */}
@@ -91,13 +110,14 @@ function DashBoard() {
         {/* Content Grid */}
         <main className="flex-1 p-4 md:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {content?.map((item: any) => (
+            {filteredContent?.map((item: any) => (
               <Card
                 key={item._id}
                 _id={item._id}
                 cardtype={item.type}
                 link={item.link}
                 title={item.title}
+                onDelete={handleCardDelete}
               />
             ))}
           </div>
