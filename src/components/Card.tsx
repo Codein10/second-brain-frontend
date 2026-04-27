@@ -4,11 +4,12 @@ import YouTubeIcon from '../assets/icons/YouTubeIcon'
 import XIcon from '../assets/icons/XIcon'
 import DeleteIcon from '../assets/icons/DeleteIcon'
 import axios from 'axios'
+import Raddit from '../assets/icons/RedditIcon'
 
 interface cardProps {
     title: string,
     link: string,
-    cardtype: "youtube" | "twitter",
+    cardtype: "youtube" | "twitter" | "reddit",
     _id: string
     onDelete?: (id: string) => void
 }
@@ -31,7 +32,7 @@ const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
                 method: 'delete',
                 url: '/api/v1/content',
                 data: { contentId: _id },
-                headers: { 
+                headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                     'Content-Type': 'application/json'
                 }
@@ -106,13 +107,32 @@ const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
         return embedUrl
     }
 
+    // Load Reddit embed script
+    useEffect(() => {
+        if (cardtype === "reddit") {
+            const script = document.createElement("script")
+            script.src = "https://embed.reddit.com/widgets.js"
+            script.async = true
+            document.body.appendChild(script)
+
+            return () => {
+                if (document.body.contains(script)) {
+                    document.body.removeChild(script)
+                }
+            }
+        }
+    }, [cardtype])
+
     return (
         <div className="h-full bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-shrink-0 text-gray-600">
-                        {cardtype === "youtube" ? <YouTubeIcon /> : <XIcon />}
+                        {cardtype === "youtube" ? <YouTubeIcon />
+                            : cardtype === "twitter" ? <XIcon />
+                                : cardtype === "reddit" ? <Raddit />
+                                    : null}
                     </div>
                     <h3 className="font-semibold text-gray-800 text-sm md:text-base line-clamp-2 break-words">
                         {title}
@@ -173,6 +193,14 @@ const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
                             <a href={link.replace("x.com", "twitter.com")}>
                                 Loading tweet...
                             </a>
+                        </blockquote>
+                    </div>
+                )}
+
+                {cardtype === "reddit" && (
+                    <div className="w-full h-48 md:h-56 overflow-y-auto">
+                        <blockquote className="reddit-embed" data-embed-height="316">
+                            <a href={link}>{title}</a>
                         </blockquote>
                     </div>
                 )}

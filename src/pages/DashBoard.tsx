@@ -49,6 +49,14 @@ function DashBoard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      {/* Backdrop */}
+      {isSideBarOpen && (
+        <div 
+          className="fixed inset-0 z-10 bg-black/50 transition-opacity duration-300"
+          onClick={() => setIsSideBarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       {isSideBarOpen && (
         <SideBar 
