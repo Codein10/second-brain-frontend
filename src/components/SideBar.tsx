@@ -4,15 +4,37 @@ import XIcon from "../assets/icons/XIcon"
 import YouTubeIcon from "../assets/icons/YouTubeIcon"
 import SideBarItems from "./SideBarItems"
 import brainly from "../assets/icons/Brainly.jpg"
+import Reddit from "../assets/icons/RedditIcon"
+import { useRef, useEffect } from "react"
+
 type SideBarProps = {
     isSideBarOpen: boolean
     setIsSideBarOpen: any
-
+    selectedFilter: string
+    onFilterChange: (filter: string) => void
 }
 
-const SideBar = ({ isSideBarOpen, setIsSideBarOpen }: SideBarProps) => {
+const SideBar = ({ isSideBarOpen, setIsSideBarOpen, selectedFilter, onFilterChange }: SideBarProps) => {
+    const sidebarRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+                setIsSideBarOpen(false)
+            }
+        }
+
+        if (isSideBarOpen) {
+            document.addEventListener("mousedown", handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+        }
+    }, [isSideBarOpen, setIsSideBarOpen])
     return (
         <div
+            ref={sidebarRef}
             className={`fixed left-0 top-0 z-20 h-screen w-64 md:w-72 bg-gradient-to-b from-purple-50 to-white shadow-2xl transition-transform duration-300 ${isSideBarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         >
             {/* Header */}
@@ -45,14 +67,34 @@ const SideBar = ({ isSideBarOpen, setIsSideBarOpen }: SideBarProps) => {
                     Filter by Type
                 </p>
                 <div className="space-y-2">
-                    <SideBarItems text="Twitter" icon={<XIcon />} />
-                    <SideBarItems text="YouTube" icon={<YouTubeIcon />} />
+                    <SideBarItems 
+                        text="All" 
+                        icon={<span>📋</span>} 
+                        onClick={() => onFilterChange("all")}
+                        isActive={selectedFilter === "all"}
+                    />
+                    <SideBarItems 
+                        text="Twitter" 
+                        icon={<XIcon />}
+                        onClick={() => onFilterChange("twitter")}
+                        isActive={selectedFilter === "twitter"}
+                    />
+                    <SideBarItems 
+                        text="YouTube" 
+                        icon={<YouTubeIcon />}
+                        onClick={() => onFilterChange("youtube")}
+                        isActive={selectedFilter === "youtube"}
+                    />
+                    <SideBarItems 
+                        text="Reddit" 
+                        icon={<Reddit />}
+                        onClick={() => onFilterChange("reddit")}
+                        isActive={selectedFilter === "reddit"}
+                    />
                 </div>
             </div>
         </div>
     )
-
-
 }
 
 export default SideBar

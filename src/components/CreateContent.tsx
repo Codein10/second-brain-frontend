@@ -7,7 +7,8 @@ import Button from './Button';
 
  const ContentType= {
     Youtube : "youtube",
-    Twitter :"twitter"
+    Twitter :"twitter",
+    Reddit : "reddit"
 }
 
 const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }) => {
@@ -56,6 +57,7 @@ const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }
                     <div className='flex gap-2'>
                         <Button disabled={false} fullWidth={false} onClick={() => settype(ContentType.Youtube)} varient={type===ContentType.Youtube ? "secondary" : "primary"} text="Youtube" center={true} />
                         <Button disabled={false} fullWidth={false} onClick={() => settype(ContentType.Twitter)} varient={type===ContentType.Twitter ? "secondary" : "primary"} text="Twitter" center={true} />
+                        <Button disabled={false} fullWidth={false} onClick={() => settype(ContentType.Reddit)} varient={type===ContentType.Reddit ? "secondary" : "primary"} text="Reddit" center={true} />
                     </div>
                     <div className="flex justify-center items-center">
                         <Button onClick={handleCreateContent} disabled={false} fullWidth={true} varient="primary" text="Create Content" />

@@ -1,30 +1,47 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ShareIcon from '../assets/icons/ShareIcon'
 import YouTubeIcon from '../assets/icons/YouTubeIcon'
 import XIcon from '../assets/icons/XIcon'
 import DeleteIcon from '../assets/icons/DeleteIcon'
 import axios from 'axios'
+import Raddit from '../assets/icons/RedditIcon'
 
 interface cardProps {
     title: string,
     link: string,
-    cardtype: "youtube" | "twitter",
-    id: string
+    cardtype: "youtube" | "twitter" | "reddit",
+    _id: string
+    onDelete?: (id: string) => void
+}
+
+// Extend window to include twttr
+declare global {
+    interface Window {
+        twttr?: any
+    }
 }
 
 
-const Card = ({ title, link, cardtype, id }: cardProps) => {
+const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
     const twitterRef = useRef<HTMLDivElement>(null)
+    const [twitterLoading, setTwitterLoading] = useState(true)
 
     const handleDelete = async () => {
         try {
-            await axios.delete('/api/v1/content', {
-                data: { contentId: id },
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            await axios({
+                method: 'delete',
+                url: '/api/v1/content',
+                data: { contentId: _id },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json'
+                }
             })
             alert("Content deleted successfully")
-        } catch (error) {
-            alert("Failed to delete content: " + error)
+            // Call the callback to remove from UI
+            onDelete?.(_id)
+        } catch (error: any) {
+            alert("Failed to delete content: " + (error.response?.data?.message || error.message))
         }
     }
 
@@ -40,28 +57,37 @@ const Card = ({ title, link, cardtype, id }: cardProps) => {
                 await navigator.clipboard.writeText(link)
                 alert("Link copied to clipboard!")
             }
-        } catch (error) {
-            console.error("Error sharing:", error)
+        } catch (error: any) {
+            alert("Error sharing content: " + (error.response?.data?.message || error.message))
         }
     }
 
     useEffect(() => {
         if (cardtype === "twitter" && twitterRef.current) {
-            if (!window.twttr) {
-                const script = document.createElement('script')
-                script.src = 'https://platform.twitter.com/widgets.js'
-                script.async = true
-                script.charset = 'utf-8'
-                document.body.appendChild(script)
+            // Load Twitter widgets script
+            const loadTwitterScript = () => {
+                if (!window.twttr) {
+                    const script = document.createElement('script')
+                    script.src = 'https://platform.twitter.com/widgets.js'
+                    script.async = true
+                    script.charset = 'utf-8'
+                    document.body.appendChild(script)
 
-                script.onload = () => {
-                    if (window.twttr?.widgets) {
-                        window.twttr.widgets.load(twitterRef.current)
+                    script.onload = () => {
+                        if (window.twttr?.widgets) {
+                            window.twttr.widgets.load(twitterRef.current).then(() => {
+                                setTwitterLoading(false)
+                            })
+                        }
                     }
+                } else {
+                    window.twttr?.widgets?.load(twitterRef.current).then(() => {
+                        setTwitterLoading(false)
+                    })
                 }
-            } else {
-                window.twttr?.widgets?.load(twitterRef.current)
             }
+
+            loadTwitterScript()
         }
     }, [cardtype, link])
 
@@ -81,13 +107,32 @@ const Card = ({ title, link, cardtype, id }: cardProps) => {
         return embedUrl
     }
 
+    // Load Reddit embed script
+    useEffect(() => {
+        if (cardtype === "reddit") {
+            const script = document.createElement("script")
+            script.src = "https://embed.reddit.com/widgets.js"
+            script.async = true
+            document.body.appendChild(script)
+
+            return () => {
+                if (document.body.contains(script)) {
+                    document.body.removeChild(script)
+                }
+            }
+        }
+    }, [cardtype])
+
     return (
         <div className="h-full bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-shrink-0 text-gray-600">
-                        {cardtype === "youtube" ? <YouTubeIcon /> : <XIcon />}
+                        {cardtype === "youtube" ? <YouTubeIcon />
+                            : cardtype === "twitter" ? <XIcon />
+                                : cardtype === "reddit" ? <Raddit />
+                                    : null}
                     </div>
                     <h3 className="font-semibold text-gray-800 text-sm md:text-base line-clamp-2 break-words">
                         {title}
@@ -136,10 +181,26 @@ const Card = ({ title, link, cardtype, id }: cardProps) => {
                         ref={twitterRef}
                         className="w-full h-48 md:h-56 overflow-y-auto"
                     >
-                        <blockquote className="twitter-tweet">
+                        {twitterLoading && (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 animate-pulse">
+                                <div className="text-center">
+                                    <div className="inline-block w-10 h-10 border-4 border-gray-300 border-t-purple-600 rounded-full animate-spin mb-2"></div>
+                                    <p className="text-sm text-gray-600">Loading tweet...</p>
+                                </div>
+                            </div>
+                        )}
+                        <blockquote className="twitter-tweet" style={{ display: twitterLoading ? 'none' : 'block' }}>
                             <a href={link.replace("x.com", "twitter.com")}>
-                                {link}
+                                Loading tweet...
                             </a>
+                        </blockquote>
+                    </div>
+                )}
+
+                {cardtype === "reddit" && (
+                    <div className="w-full h-48 md:h-56 overflow-y-auto">
+                        <blockquote className="reddit-embed" data-embed-height="316">
+                            <a href={link}>{title}</a>
                         </blockquote>
                     </div>
                 )}
