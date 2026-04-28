@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.BACKEND_URL,
+        target: process.env.BACKEND_URL_PROD,
         changeOrigin: true,
       },
     },
