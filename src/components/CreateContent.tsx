@@ -13,6 +13,7 @@ import Button from './Button';
 
 const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }) => {
     if (!open) return null
+     const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
 
     const linkRef = useRef<HTMLInputElement>(null)
     const titleRef = useRef<HTMLInputElement>(null)
@@ -23,7 +24,7 @@ const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }
             const title = titleRef.current?.value;
             const link = linkRef.current?.value;
             
-            await axios.post('/api/v1/content',
+            await axios.post(`${BASE_URL}/api/v1/content`,
                 { title, link, type },
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
             );

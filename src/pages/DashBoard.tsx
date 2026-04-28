@@ -15,6 +15,7 @@ function DashBoard() {
   const { content, fetchContent, removeContent } = useContent()
   const [isSideBarOpen, setIsSideBarOpen] = useState(false)
   const [selectedFilter, setSelectedFilter] = useState("all")
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
 
   useEffect(() => {
     fetchContent()
@@ -35,7 +36,7 @@ function DashBoard() {
 
   async function handleShare() {
     try {
-      const response = await axios.post('/api/v1/brain/share',
+      const response = await axios.post(`${BASE_URL}/api/v1/brain/share`,
         { share: true },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
