@@ -4,9 +4,10 @@ import { useState } from "react"
 
 export function useContent() {
  const [content, setContent] = useState([])
- 
+ const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
+
 function fetchContent() {
- axios.get('/api/v1/content', {
+ axios.get(`${BASE_URL}/api/v1/content`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     }).then((res) => {
         setContent(res.data.Content)

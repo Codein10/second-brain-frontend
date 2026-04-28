@@ -25,12 +25,13 @@ declare global {
 const Card = ({ title, link, cardtype, _id, onDelete }: cardProps) => {
     const twitterRef = useRef<HTMLDivElement>(null)
     const [twitterLoading, setTwitterLoading] = useState(true)
+   const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
 
     const handleDelete = async () => {
         try {
             await axios({
                 method: 'delete',
-                url: '/api/v1/content',
+                url: `${BASE_URL}/api/v1/content`,
                 data: { contentId: _id },
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,

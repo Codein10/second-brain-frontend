@@ -5,6 +5,7 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom"
 
 const SignUp = () => {
+const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
 const usernameRef=useRef <HTMLInputElement>(null)
 const passwordRef=useRef <HTMLInputElement>(null)
 const navigate=useNavigate()
@@ -13,7 +14,7 @@ try {
   const username=usernameRef.current?.value
   const password=passwordRef.current?.value
   console.log(username,password)
- await axios.post("/api/v1/signup" ,{
+ await axios.post(`${BASE_URL}/api/v1/signup` ,{
   username,
   password
 })
