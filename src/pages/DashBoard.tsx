@@ -9,6 +9,8 @@ import SideBar from '../components/SideBar'
 import { useContent } from '../hooks/useContent'
 import axios from 'axios'
 import MenuIcon from '../assets/icons/MenuIcon'
+import { useAuth } from '../context/AuthContext'
+import SignIn from './SignIn'
 
 function DashBoard() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -17,6 +19,7 @@ function DashBoard() {
   const [selectedFilter, setSelectedFilter] = useState("all")
   const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
 
+  const { isSignedIn } = useAuth()
   useEffect(() => {
     fetchContent()
   }, [modalOpen])
@@ -109,12 +112,12 @@ function DashBoard() {
         </header>
 
         {/* Create Content Modal */}
-        <CreateContent
+        {isSignedIn?<CreateContent
           open={modalOpen}
           onclose={() => {
             setModalOpen(false)
           }}
-        />
+        />:<SignIn/>}
 
         {/* Content Grid */}
         <main className="flex-1 p-4 md:p-6">
