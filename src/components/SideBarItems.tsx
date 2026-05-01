@@ -17,7 +17,7 @@ const SideBarItems = ({ icon, text, onClick, isActive = false }: SideBarItemsPro
                     : 'text-gray-700 hover:bg-purple-100 hover:text-purple-700 hover:shadow-sm'
             }`}
         >
-            <div className="flex-shrink-0 text-lg">
+            <div className="flex-shrink:0 text-lg">
                 {icon}
             </div>
             <span className="flex-1 text-left text-sm md:text-base">

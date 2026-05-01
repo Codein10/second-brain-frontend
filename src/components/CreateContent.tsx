@@ -4,7 +4,6 @@ import CrossIcon from '../assets/icons/CrossIcon'
 import Input from './Input';
 import axios from 'axios';
 import Button from './Button';
-
  const ContentType= {
     Youtube : "youtube",
     Twitter :"twitter",
@@ -14,7 +13,6 @@ import Button from './Button';
 const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }) => {
     if (!open) return null
      const BASE_URL = import.meta.env.VITE_BACKEND_URL_PROD;
-
     const linkRef = useRef<HTMLInputElement>(null)
     const titleRef = useRef<HTMLInputElement>(null)
      const [type,settype]=useState(ContentType.Youtube)
@@ -23,7 +21,6 @@ const CreateContent = ({ open, onclose }: { open: boolean; onclose: () => void }
         try {
             const title = titleRef.current?.value;
             const link = linkRef.current?.value;
-            
             await axios.post(`${BASE_URL}/api/v1/content`,
                 { title, link, type },
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
